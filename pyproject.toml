@@ -1,14 +1,179 @@
 [project]
 name = "vivy"
 version = "0.0.0"
-description = "Add your description here"
+description = "A python library implementing a simple builder pattern interface"
 readme = "README.md"
+license = "MIT"
 authors = [
     { name = "sqrtrae", email = "sqrtrae@gmail.com" }
+]
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Typing :: Typed",
 ]
 requires-python = ">=3.13"
 dependencies = []
 
+[dependency-groups]
+dev = [
+    "pyright>=1.1.402",
+    "pytest>=8.4.1",
+    "ruff>=0.12.2",
+]
+
+[project.urls]
+Homepage = "https://github.com/sqrtrae/vivy"
+Repository = "https://github.com/sqrtrae/vivy.git"
+Issues = "https://github.com/sqrtrae/vivy/issues"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+# ==================
+# ruff configuration
+# ==================
+
+[tool.ruff]
+line-length = 80
+output-format = "grouped"
+target-version = "py313"
+unsafe-fixes = true
+
+[tool.ruff.format]
+docstring-code-format = true
+quote-style = "single"
+
+[tool.ruff.lint]
+preview = true
+# TODO: trim down selected rules to only the ones actually applicable
+#       to this package.
+select = [   # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+    "F",     # ┃ Pyflakes                   ┃
+    "ASYNC", # ┃ flake8-async               ┃
+    "S",     # ┃ flake8-bandit              ┃
+    "BLE",   # ┃ flake8-blind-except        ┃
+    "FBT",   # ┃ flake8-boolean-trap        ┃
+    "B",     # ┃ flake8-bugbear             ┃
+    "A",     # ┃ flake8-builtins            ┃
+    "COM",   # ┃ flake8-commas              ┃
+    "C4",    # ┃ flake8-comprehensions      ┃
+    "DTZ",   # ┃ flake8-datetimez           ┃
+    "T10",   # ┃ flake8-debugger            ┃
+    "EM",    # ┃ flake8-errmsg              ┃
+    "FA",    # ┃ flake8-future-annotations  ┃
+    "ISC",   # ┃ flake8-implicit-str-concat ┃
+    "ICN",   # ┃ flake8-import-conventions  ┃
+    "LOG",   # ┃ flake8-logging             ┃
+    "G",     # ┃ flake8-logging-format      ┃
+    "PIE",   # ┃ flake8-pie                 ┃
+    "PYI",   # ┃ flake8-pyi                 ┃
+    "PT",    # ┃ flake8-pytest-style        ┃
+    "RSE",   # ┃ flake8-raise               ┃
+    "RET",   # ┃ flake8-return              ┃
+    "SLF",   # ┃ flake8-self                ┃
+    "SIM",   # ┃ flake8-simplify            ┃
+    "SLOT",  # ┃ flake8-slots               ┃
+    "TC",    # ┃ flake8-type-checking       ┃
+    "PTH",   # ┃ flake8-use-pathlib         ┃
+    "I",     # ┃ isort                      ┃
+    "C90",   # ┃ mccabe                     ┃
+    "N",     # ┃ pep8-naming                ┃
+    "PERF",  # ┃ Perflint                   ┃
+    "E",     # ┃ pycodestyle - Error        ┃
+    "W",     # ┃ pycodestyle - Warning      ┃
+    "DOC",   # ┃ pydoclint                  ┃
+    "D",     # ┃ pydocstyle                 ┃
+    "PL",    # ┃ Pylint                     ┃
+    "PLC",   # ┃ Pylint - Convention        ┃
+    "PLE",   # ┃ Pylint - Error             ┃
+    "PLR",   # ┃ Pylint - Refactor          ┃
+    "PLW",   # ┃ Pylint - Warning           ┃
+    "UP",    # ┃ pyupgrade                  ┃
+    "FURB",  # ┃ refurb                     ┃
+    "RUF",   # ┃ ruff-specific rules        ┃
+    "TRY",   # ┃ tryceratops                ┃
+    "ERA",   # ┃ eradicate                  ┃
+]            # ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+ignore = [    # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+    "W191",   # ┃ tab-indentation                           ┃
+    "E111",   # ┃ indentation-with-invalid-multiple         ┃
+    "E114",   # ┃ indentation-with-invalid-multiple-comment ┃
+    "E117",   # ┃ over-indented                             ┃
+    "D206",   # ┃ docstring-tab-indentation                 ┃
+    "D300",   # ┃ triple-single-quotes                      ┃
+    "F841",   # ┃ unused-variable                           ┃
+    "COM812", # ┃ missing-trailing-comma                    ┃
+    "COM819", # ┃ prohibited-trailing-comma                 ┃
+    "RUF022", # ┃ unsorted-dunder-all                       ┃
+]             # ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+unfixable = [ # ┏━━━━━━━━━━━━━━━┓
+    "F401"    # ┃ unused-import ┃
+]             # ┗━━━━━━━━━━━━━━━┛
+task-tags = [
+    "TODO",
+    "BUG",
+    "FIXME",
+]
+
+[tool.ruff.lint.flake8-pytest-style]
+fixture-parentheses = true
+mark-parentheses = true
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+ignore-var-parameters = true
+
+# =====================
+# pyright configuration
+# =====================
+
+[tool.pyright]
+include = ["src"]
+#verboseOutput = true
+pythonVersion = "3.13"
+pythonPlatform = "All"
+# Unused
+reportUnusedImport = "information"
+reportUnusedClass = "information"
+reportUnusedFunction = "information"
+reportUnusedVariable = "information"
+reportDuplicateImport = "information"
+reportUnusedCallResult = "information"
+reportUnusedExpression = "information"
+# Untyped/Missing types
+reportUntypedFunctionDecorator = "error"
+reportUntypedClassDecorator = "error"
+reportUntypedBaseClass = "error"
+reportUntypedNamedTuple = "error"
+reportMissingParameterType = "error"
+reportMissingTypeArgument = "error"
+# Unknown types
+reportUnknownParameterType = "warning"
+reportUnknownArgumentType = "warning"
+reportUnknownLambdaType = "warning"
+reportUnknownVariableType = "warning"
+reportUnknownMemberType = "warning"
+# Unnecessary operations
+reportUnnecessaryIsInstance = "warning"
+reportUnnecessaryCast = "warning"
+reportUnnecessaryComparison = "warning"
+reportUnnecessaryContains = "warning"
+reportUnnecessaryTypeIgnoreComment = "warning"
+# Misc.
+reportPrivateUsage = "warning"
+reportConstantRedefinition = "warning"
+reportDeprecated = "warning"
+reportInconsistentConstructor = "warning"
+reportUninitializedInstanceVariable = "warning"
+reportCallInDefaultInitializer = "warning"
+reportInvalidStubStatement = "warning"
+reportIncompleteStub = "warning"
+reportMatchNotExhaustive = "error"
+reportShadowedImports = "error"
