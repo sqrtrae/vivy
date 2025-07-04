@@ -5,6 +5,7 @@ alias s := sync
 alias u := upgrade
 alias t := test
 alias ty := type-check
+alias l := lint
 alias f := format
 
 sync:
@@ -19,6 +20,8 @@ test:
 type-check:
   uv run pyright
 
-format:
+lint:
   uv run ruff check --fix --config ./pyproject.toml
+
+format:
   uv run ruff format --config ./pyproject.toml
