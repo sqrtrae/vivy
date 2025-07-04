@@ -482,6 +482,76 @@ def set_[T](
     return Set(default=default, default_factory=default_factory)
 
 
+# ~~~~
+# dict
+# ~~~~
+
+
+class DictCaller[K, V, Obj](Protocol):
+    @overload
+    def __call__(self, /) -> Value[dict[K, V]]: ...
+    @overload
+    def __call__(self, value: Unset, /) -> Obj: ...
+    @overload
+    def __call__(self, value: Default, /) -> Obj: ...
+    @overload
+    def __call__(
+        self,
+        value: Mapping[K, V] | Iterable[tuple[K, V]],
+        /,
+        *,
+        on_existing: Literal['union', 'intersection'] = ...,
+        on_conflict: Literal['keep-new', 'keep-existing'] = ...,
+    ) -> Obj: ...
+    @overload
+    def __call__(
+        self,
+        value: Mapping[K, V] | Iterable[tuple[K, V]],
+        /,
+        *,
+        on_existing: Literal['replace'] = ...,
+    ) -> Obj: ...
+    def __call__(
+        self,
+        value: InputValue[Mapping[K, V] | Iterable[tuple[K, V]]]
+        | Missing = MISSING,
+        /,
+        *,
+        on_existing: Literal['union', 'intersection', 'replace'] = 'union',
+        on_conflict: Literal['keep-new', 'keep-existing'] = 'keep-new',
+    ) -> Value[dict[K, V]] | Obj: ...
+
+
+class Dict[K, V](BaseVivyAttr[dict[K, V]]):
+    @staticmethod
+    def set_hook[Obj](
+        params: HookParams[dict[K, V], Obj],
+    ) -> SetValue[dict[K, V]]: ...
+
+    @overload
+    def __get__(self, instance: None, owner: type) -> Self: ...
+    @overload
+    def __get__[Obj](
+        self,
+        instance: Obj,
+        owner: type[Obj],
+    ) -> DictCaller[K, V, Obj]: ...
+
+    def __get__[Obj](
+        self,
+        instance: Obj,
+        owner: type[Obj],
+    ) -> Self | Callable[..., Value[dict[K, V]] | Obj]:
+        if instance is None:
+            return self
+
+        if self._value_caller is MISSING:
+            self._prepare_instance(instance)
+            self._value_caller = self._make_value_caller(instance)
+
+        return self._value_caller
+
+
 # ==================
 # virtual submodules
 # ==================
