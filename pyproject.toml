@@ -1,6 +1,6 @@
 [project]
 name = "vivy"
-version = "0.0.0"
+version = "0.1.0.dev1"
 description = "A python library implementing a simple builder pattern interface"
 readme = "README.md"
 license = "MIT"
@@ -91,10 +91,6 @@ select = [   # ┏━━━━━━━━━━━━━━━━━━━━�
     "DOC",   # ┃ pydoclint                  ┃
     "D",     # ┃ pydocstyle                 ┃
     "PL",    # ┃ Pylint                     ┃
-    "PLC",   # ┃ Pylint - Convention        ┃
-    "PLE",   # ┃ Pylint - Error             ┃
-    "PLR",   # ┃ Pylint - Refactor          ┃
-    "PLW",   # ┃ Pylint - Warning           ┃
     "UP",    # ┃ pyupgrade                  ┃
     "FURB",  # ┃ refurb                     ┃
     "RUF",   # ┃ ruff-specific rules        ┃

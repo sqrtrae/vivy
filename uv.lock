@@ -121,7 +121,7 @@ wheels = [
 
 [[package]]
 name = "vivy"
-version = "0.0.0"
+version = "0.1.0.dev1"
 source = { editable = "." }
 
 [package.dev-dependencies]

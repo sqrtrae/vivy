@@ -2,14 +2,17 @@ from __future__ import annotations
 
 __all__ = []
 
-
 import enum
+import typing
 from abc import ABC
 from abc import abstractmethod
 from collections.abc import Callable
+from collections.abc import Iterable
+from collections.abc import Mapping
 from typing import Any
 from typing import Literal
 from typing import NamedTuple
+from typing import Protocol
 from typing import Self
 from typing import overload
 
@@ -204,6 +207,279 @@ class BaseAttr[T](ABC):
             return instance
 
         return value_caller
+
+
+# =============
+# vivy builders
+# =============
+
+
+# these are iterable types that aren't treated as iterable
+# by the list/set builders.
+_EXCLUDED_ITER_TYPES: list[type] = [
+    str,
+    bytes,
+]
+
+
+class BaseVivyAttr[T](BaseAttr[T], ABC):
+    @staticmethod
+    def mode_hook[Obj](params: HookParams[T, Obj]) -> Literal['get', 'set']:
+        if params.call_args[0] is MISSING:
+            return 'get'
+        return 'set'
+
+    @staticmethod
+    def get_hook[Obj](params: HookParams[T, Obj]) -> GetValue[T]:
+        return params.stored_value
+
+
+# ~~~~~~
+# scalar
+# ~~~~~~
+
+
+class ScalarCaller[T, Obj](Protocol):
+    @overload
+    def __call__(self, /) -> Value[T]: ...
+    @overload
+    def __call__(self, value: Unset, /) -> Obj: ...
+    @overload
+    def __call__(self, value: Default, /) -> Obj: ...
+    @overload
+    def __call__(self, value: T, /) -> Obj: ...
+    def __call__(
+        self,
+        value: InputValue[T] | Missing = MISSING,
+        /,
+    ) -> Value[T] | Obj: ...
+
+
+class Scalar[T](BaseVivyAttr[T]):
+    @staticmethod
+    def set_hook[Obj](params: HookParams[T, Obj]) -> SetValue[T]:
+        return params.call_args[0]
+
+    @overload
+    def __get__(self, instance: None, owner: type) -> Self: ...
+    @overload
+    def __get__[Obj](
+        self,
+        instance: Obj,
+        owner: type[Obj],
+    ) -> ScalarCaller[T, Obj]: ...
+
+    def __get__[Obj](
+        self,
+        instance: Obj,
+        owner: type[Obj],
+    ) -> Self | Callable[..., Value[T] | Obj]:
+        if instance is None:
+            return self
+
+        if self._value_caller is MISSING:
+            self._prepare_instance(instance)
+            self._value_caller = self._make_value_caller(instance)
+
+        return self._value_caller
+
+
+def scalar[T](
+    *,
+    default: DefaultValue[T] = MISSING,
+    default_factory: DefaultFactory[T] = MISSING,
+) -> Scalar[T]:
+    return Scalar(default=default, default_factory=default_factory)
+
+
+# ~~~~
+# list
+# ~~~~
+
+
+class ListCaller[T, Obj](Protocol):
+    @overload
+    def __call__(self, /) -> Value[list[T]]: ...
+    @overload
+    def __call__(self, value: Unset, /) -> Obj: ...
+    @overload
+    def __call__(self, value: Default, /) -> Obj: ...
+    @overload
+    def __call__(
+        self,
+        *values: T | Iterable[T],
+        on_existing: Literal['extend', 'replace'] = ...,
+    ) -> Obj: ...
+    def __call__(
+        self,
+        value: InputValue[T | Iterable[T]] | Missing = MISSING,
+        *other_values: T | Iterable[T],
+        on_existing: Literal['extend', 'replace'] = 'extend',
+    ) -> Value[list[T]] | Obj: ...
+
+
+class List[T](BaseVivyAttr[list[T]]):
+    @staticmethod
+    def set_hook[Obj](params: HookParams[list[T], Obj]) -> SetValue[list[T]]:
+        values: list[T | Iterable[T]] = list(params.call_args)
+
+        on_existing = params.call_kwargs.get('on_existing', 'extend')
+        if on_existing not in {'extend', 'replace'}:
+            msg = (
+                f'Invalid value for on_existing ({on_existing!r}): '
+                "expected one of 'extend' or 'replace'."
+            )
+            raise ValueError(msg)
+
+        set_value: list[T] = []
+        for value in values:
+            if any(
+                isinstance(value, iter_type)
+                for iter_type in _EXCLUDED_ITER_TYPES
+            ) or not isinstance(value, Iterable):
+                set_value.append(typing.cast('T', value))
+            else:
+                set_value.extend(typing.cast('Iterable[T]', value))
+
+        stored_value = params.stored_value
+        if (
+            on_existing == 'extend'
+            and stored_value is not MISSING
+            and stored_value is not UNSET
+        ):
+            set_value = stored_value + set_value
+
+        return set_value
+
+    @overload
+    def __get__(self, instance: None, owner: type) -> Self: ...
+    @overload
+    def __get__[Obj](
+        self,
+        instance: Obj,
+        owner: type[Obj],
+    ) -> ListCaller[T, Obj]: ...
+
+    def __get__[Obj](
+        self,
+        instance: Obj,
+        owner: type[Obj],
+    ) -> Self | Callable[..., Value[list[T]] | Obj]:
+        if instance is None:
+            return self
+
+        if self._value_caller is MISSING:
+            self._prepare_instance(instance)
+            self._value_caller = self._make_value_caller(instance)
+
+        return self._value_caller
+
+
+def list_[T](
+    *,
+    default: DefaultValue[list[T]] = MISSING,
+    default_factory: DefaultFactory[list[T]] = MISSING,
+) -> List[T]:
+    return List(default=default, default_factory=default_factory)
+
+
+# ~~~
+# set
+# ~~~
+
+
+class SetCaller[T, Obj](Protocol):
+    @overload
+    def __call__(self, /) -> Value[set[T]]: ...
+    @overload
+    def __call__(self, value: Unset, /) -> Obj: ...
+    @overload
+    def __call__(self, value: Default, /) -> Obj: ...
+    @overload
+    def __call__(
+        self,
+        *values: T | Iterable[T],
+        on_existing: Literal['union', 'intersection', 'replace'] = ...,
+    ) -> Obj: ...
+    def __call__(
+        self,
+        value: InputValue[T | Iterable[T]] | Missing = MISSING,
+        *other_values: T | Iterable[T],
+        on_existing: Literal['union', 'intersection', 'replace'] = 'union',
+    ) -> Value[set[T]] | Obj: ...
+
+
+class Set[T](BaseVivyAttr[set[T]]):
+    @staticmethod
+    def set_hook[Obj](params: HookParams[set[T], Obj]) -> SetValue[set[T]]:
+        values: list[T | Iterable[T]] = list(params.call_args)
+
+        on_existing = params.call_kwargs.get('on_existing', 'union')
+        if on_existing not in {'union', 'intersection', 'replace'}:
+            msg = (
+                f'Invalid value for on_existing ({on_existing!r}): '
+                "expected one of 'union', 'intersection', or 'replace'."
+            )
+            raise ValueError(msg)
+
+        stored_value = params.stored_value
+
+        set_value: set[T] = set()
+        if (
+            on_existing in {'union', 'intersection'}
+            and stored_value is not MISSING
+            and stored_value is not UNSET
+        ):
+            set_value = stored_value
+
+        if on_existing not in {'extend', 'replace'}:
+            msg = (
+                f'Invalid value for on_existing ({on_existing!r}): '
+                "expected one of 'extend' or 'replace'."
+            )
+            raise ValueError(msg)
+
+        for value in values:
+            if any(
+                isinstance(value, iter_type)
+                for iter_type in _EXCLUDED_ITER_TYPES
+            ) or not isinstance(value, Iterable):
+                set_value.add(typing.cast('T', value))
+            else:
+                set_value = set_value.union(typing.cast('Iterable[T]', value))
+
+        return set_value
+
+    @overload
+    def __get__(self, instance: None, owner: type) -> Self: ...
+    @overload
+    def __get__[Obj](
+        self,
+        instance: Obj,
+        owner: type[Obj],
+    ) -> SetCaller[T, Obj]: ...
+
+    def __get__[Obj](
+        self,
+        instance: Obj,
+        owner: type[Obj],
+    ) -> Self | Callable[..., Value[set[T]] | Obj]:
+        if instance is None:
+            return self
+
+        if self._value_caller is MISSING:
+            self._prepare_instance(instance)
+            self._value_caller = self._make_value_caller(instance)
+
+        return self._value_caller
+
+
+def set_[T](
+    *,
+    default: DefaultValue[set[T]] = MISSING,
+    default_factory: Factory[set[T]] | Missing = MISSING,
+) -> Set[T]:
+    return Set(default=default, default_factory=default_factory)
 
 
 # ==================
