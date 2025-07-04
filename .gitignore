@@ -7,6 +7,9 @@
 .vscode/
 .vim/
 
+# A place to put notes/references that should not be committed
+/notes
+
 
 # Created by https://www.toptal.com/developers/gitignore/api/python
 # Edit at https://www.toptal.com/developers/gitignore?templates=python
