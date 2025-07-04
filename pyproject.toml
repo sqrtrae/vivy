@@ -126,6 +126,10 @@ task-tags = [
 fixture-parentheses = true
 mark-parentheses = true
 
+[tool.ruff.lint.isort]
+case-sensitive = true
+force-single-line = true
+
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
 ignore-var-parameters = true
