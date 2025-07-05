@@ -17,6 +17,7 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: CPython",
     "Typing :: Typed",
 ]
+keywords = ["builder", "pattern", "descriptor"]
 requires-python = ">=3.13"
 dependencies = []
 
