@@ -442,23 +442,7 @@ class Set[T](BaseVivyAttr[set[T]]):
             )
             raise ValueError(msg)
 
-        stored_value = params.stored_value
-
         set_value: set[T] = set()
-        if (
-            on_existing in {'union', 'intersection'}
-            and stored_value is not MISSING
-            and stored_value is not UNSET
-        ):
-            set_value = stored_value
-
-        if on_existing not in {'extend', 'replace'}:
-            msg = (
-                f'Invalid value for on_existing ({on_existing!r}): '
-                "expected one of 'extend' or 'replace'."
-            )
-            raise ValueError(msg)
-
         for value in values:
             if any(
                 isinstance(value, iter_type)
@@ -467,6 +451,13 @@ class Set[T](BaseVivyAttr[set[T]]):
                 set_value.add(typing.cast('T', value))
             else:
                 set_value = set_value.union(typing.cast('Iterable[T]', value))
+
+        stored_value = params.stored_value
+        if stored_value is not MISSING and stored_value is not UNSET:
+            if on_existing == 'union':
+                set_value = stored_value | set_value
+            elif on_existing == 'intersection':
+                set_value = stored_value & set_value
 
         return set_value
 
