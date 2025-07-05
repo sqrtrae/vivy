@@ -112,7 +112,7 @@ class BaseAttr[T](ABC):
         *,
         default: DefaultValue[T] = MISSING,
         default_factory: DefaultFactory[T] = MISSING,
-    ):
+    ) -> None:
         if default is not MISSING and default_factory is not MISSING:
             msg = "Can only specify one of 'default' and 'default_factory'."
             raise TypeError(msg)
@@ -304,6 +304,14 @@ class Scalar[T](BaseVivyAttr[T]):
         return self._value_caller
 
 
+@overload
+def scalar() -> Scalar[Any]: ...
+@overload
+def scalar[T](*, default: Value[T]) -> Scalar[T]: ...
+@overload
+def scalar[T](*, default_factory: Factory[T]) -> Scalar[T]: ...
+
+
 def scalar[T](
     *,
     default: DefaultValue[T] = MISSING,
@@ -395,6 +403,14 @@ class List[T](BaseVivyAttr[list[T]]):
         return self._value_caller
 
 
+@overload
+def list_() -> List[Any]: ...
+@overload
+def list_[T](*, default: Value[list[T]]) -> List[T]: ...
+@overload
+def list_[T](*, default_factory: Factory[list[T]]) -> List[T]: ...
+
+
 def list_[T](
     *,
     default: DefaultValue[list[T]] = MISSING,
@@ -483,6 +499,14 @@ class Set[T](BaseVivyAttr[set[T]]):
             self._value_caller = self._make_value_caller(instance)
 
         return self._value_caller
+
+
+@overload
+def set_() -> Set[Any]: ...
+@overload
+def set_[T](*, default: Value[set[T]]) -> Set[T]: ...
+@overload
+def set_[T](*, default_factory: Factory[set[T]]) -> Set[T]: ...
 
 
 def set_[T](
