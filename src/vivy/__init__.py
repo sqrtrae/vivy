@@ -1,6 +1,27 @@
 from __future__ import annotations
 
-__all__ = []
+__all__ = [
+    # sentinels
+    'Unset',
+    'UNSET',
+    'Default',
+    'DEFAULT',
+    # core
+    'Value',
+    'InputValue',
+    'VIVY_STORAGE_ATTR',
+    # builders
+    'scalar',
+    'Scalar',
+    'list_',
+    'List',
+    'set_',
+    'Set',
+    # virtual submodules
+    'sentinels',
+    'core',
+    'builders',
+]
 
 import enum
 import typing
@@ -8,7 +29,6 @@ from abc import ABC
 from abc import abstractmethod
 from collections.abc import Callable
 from collections.abc import Iterable
-from collections.abc import Mapping
 from typing import Any
 from typing import Literal
 from typing import NamedTuple
@@ -485,3 +505,38 @@ def set_[T](
 # ==================
 # virtual submodules
 # ==================
+
+
+class sentinels:
+    Unset = Unset
+    Default = Default
+    Missing = Missing
+    UNSET = UNSET
+    DEFAULT = DEFAULT
+    MISSING = MISSING
+
+
+class core:
+    Value = Value
+    DefaultValue = DefaultValue
+    StoredValue = StoredValue
+    InputValue = InputValue
+    GetValue = GetValue
+    SetValue = SetValue
+    Factory = Factory
+    DefaultFactory = DefaultFactory
+    VIVY_STORAGE_ATTR = VIVY_STORAGE_ATTR
+    HookParams = HookParams
+    BaseAttr = BaseAttr
+
+
+class builders:
+    ScalarCaller = ScalarCaller
+    Scalar = Scalar
+    scalar = scalar
+    ListCaller = ListCaller
+    List = List
+    list_ = list_
+    SetCaller = SetCaller
+    Set = Set
+    set_ = set_
