@@ -7,6 +7,7 @@ alias t := test
 alias ty := type-check
 alias l := lint
 alias f := format
+alias d := doc-serve
 
 sync:
   uv sync --all-extras --all-groups --locked
@@ -25,3 +26,6 @@ lint:
 
 format:
   uv run ruff format --config ./pyproject.toml
+
+doc-serve:
+  uv run --group docs mkdocs serve
