@@ -5,9 +5,13 @@ repo_name: sqrtrae/vivy
 
 nav:
   - Getting Started:
-      - Installation: index.md
-      - Basic Usage: usage.md
-      - Making Your Own Builders: extend.md
+      - Installation: guide/install.md
+      - Basic Usage: guide/usage.md
+      - Included Builders:
+          - Scalar: guide/builders/scalar.md
+          - List: guide/builders/list.md
+          - Set: guide/builders/set.md
+      - Making Your Own Builders: guide/extend.md
   - API Reference: api/index.md
   - Changelog: changelog.md
 
